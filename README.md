@@ -13,3 +13,5 @@ line 2
 7. скрытый файл .terraformrc и файл terraform.rc
 
 New line
+
+Commit 1 from PyCharm
