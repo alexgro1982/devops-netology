@@ -12,3 +12,4 @@ line 2
 6. файлы override.tf, override.tf.json, а также файлы, имена которых заканчиваются на _override.tf и _override.tf.json
 7. скрытый файл .terraformrc и файл terraform.rc
 
+New line
