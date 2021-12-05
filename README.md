@@ -15,3 +15,5 @@ line 2
 New line
 
 Commit 1 from PyCharm
+
+commit 2 from PyCharm
