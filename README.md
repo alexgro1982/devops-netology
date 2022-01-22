@@ -1,97 +1,96 @@
-# Домашнее задание к занятию «3.1. Работа в терминале, лекция 1»
-
-1. Установка VirtualBox и Vagrant установлены и виртуальная машина Ubuntu 20.04 запущена.
+# Домашнее задание к занятию «3.2. Работа в терминале, лекция 2»
+1. Команда cd является встроенной в shell, т.к. она меняет текущую рабочую директорию самого процесса shell. Если бы команда cd имела исполняемый файл, то при выполнении запускался бы новый процесс, который имеет свою рабочую директорию.
+2. grep -c <some_string> <some_file>
+3. PID 1
+```shell
+root@vagrant:~# ps -q 1
+    PID TTY          TIME CMD
+      1 ?        00:00:02 systemd
 ```
-alexgro@alex-book:~/netology/vagrant$ vagrant ssh
-Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.4.0-91-generic x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
-
-  System information as of Fri 14 Jan 2022 08:22:43 PM UTC
-
-  System load:  0.08               Processes:             118
-  Usage of /:   12.0% of 30.88GB   Users logged in:       0
-  Memory usage: 21%                IPv4 address for eth0: 10.0.2.15
-  Swap usage:   0%
-
-
-This system is built by the Bento project by Chef Software
-More information can be found at https://github.com/chef/bento
-Last login: Wed Jan 12 18:53:41 2022 from 10.0.2.2
-vagrant@vagrant:~$ 
+4. 
+```shell
+root@vagrant:~# lsof -p $$ | grep pts
+bash    1272 root    0u   CHR  136,0      0t0       3 /dev/pts/0
+bash    1272 root    1u   CHR  136,0      0t0       3 /dev/pts/0
+bash    1272 root    2u   CHR  136,0      0t0       3 /dev/pts/0
+bash    1272 root  255u   CHR  136,0      0t0       3 /dev/pts/0
 ```
-5. Аппаратные ресурсы виртуальной машины по умолчанию
-- Оперативная память - 1024 МБ
-- Процессор - 2
-- Видеопамять - 4 МБ
-- Сеть - Intel PRO/1000 MT Desktop (NAT)
+```shell
+vagrant@vagrant:~$ ls /roott 2>/dev/pts/0
+```
+Получаем текст оошибки в первой сессии терминала
+```shell
+root@vagrant:~# ls: cannot access '/roott': No such file or directory
+```
+5. Да, получится.
+```shell
+root@vagrant:~# echo "Text Text Text" > file1
+root@vagrant:~# ls -l
+total 8
+-rw-r--r-- 1 root root   15 Jan 20 18:51 file1
+drwxr-xr-x 3 root root 4096 Dec 19 19:42 snap
+root@vagrant:~# cat < file1 > file2
+root@vagrant:~# ls -l
+total 12
+-rw-r--r-- 1 root root   15 Jan 20 18:51 file1
+-rw-r--r-- 1 root root   15 Jan 20 18:52 file2
+drwxr-xr-x 3 root root 4096 Dec 19 19:42 snap
+root@vagrant:~# cat file2
+Text Text Text
+```
+6. Вывести данные можно, перенаправлением вывода на /dev/ttyX. Но для просмотра этих данных придётся переключится на терминал нажатием ctrl+alt+F(X).
 
-6. Содержимое файла Vagrantfile для запуска машины с 2048 МИ оперативы и 1 процессором:
-```
-Vagrant.configure("2") do |config|
-    config.vm.box = "bento/ubuntu-20.04"
-    config.vm.provider "virtualbox" do |v|
-        v.memory = 2048
-        v.cpus = 1
-    end
-end
-```
-8. Длина журнала задаётся переменной HISTSIZE, описание переменной находится в 628 строке справки. 
-```
-vagrant@vagrant:~$ echo $HISTSIZE
-1000
-vagrant@vagrant:~$ HISTSIZE=5000
-vagrant@vagrant:~$ echo $HISTSIZE
-5000
-```
-ignoreboth является одним из значений переменной HISTCONTROL, которое говорит о том, что в истории не будут сохраняться строки начинающиеся с пробелов, и дубликаты уже имеющихся в истории строк.
+7. При выполнении комманды bash 5>&1 запустится дочерний процесс bash, в котором создастся файловый дескриптор 5, ссылающийся на stdout.
 
-9. Фигурные скобки {} применяются для сокращения количесва комманд, в которых имеется общий префикс. Описание данной функции находится в строке 791.
-
-10. СОздание 100000 файлов однократным вызовом:
+```shell
+vagrant@vagrant:~$ bash 5>&1
+vagrant@vagrant:~$ echo netology > /proc/$$/fd/5
+netology
+vagrant@vagrant:~$
 ```
-vagrant@vagrant:~/test$ touch file{1..100000}
-vagrant@vagrant:~/test$ ls -l | wc -l
-100001
-vagrant@vagrant:~/test$ ls -l | head -n 10
+Так как файловый дескриптор 5 ссылается на stdout, все данные отправленные в fd/5 будут выводится в консоль.
+
+8. Получится.
+```shell
+vagrant@vagrant:~$ ls -l /home/vagrant
 total 0
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file1
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file10
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file100
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file1000
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file10000
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file100000
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file10001
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file10002
--rw-rw-r-- 1 vagrant vagrant 0 Jan 14 21:11 file10003
-vagrant@vagrant:~/test$ 
-```
-Создать 300000 файлов подобным образом не получится, т.к. в данном случае размер аргументов комадды touch выходят за ограничения. Командой ulimit -s 20000 можно увеличить стек shell, и тогда файлы создадутся.
-
-11. Конструкция [[ -d /tmp ]] возвращает статус 0 если файл /tmp существует, и является каталогом.
-```
-vagrant@vagrant:~/test1$ [[ -d /tmp ]]
-vagrant@vagrant:~/test1$ echo $?
+-rw-rw-r-- 1 vagrant vagrant 0 Jan 22 14:15 test
+-rw-rw-r-- 1 vagrant vagrant 0 Jan 22 14:15 test1
+vagrant@vagrant:~$ ls -l /home/vagrant | wc -l
+3
+vagrant@vagrant:~$ ls -l /home/vagranttt | wc -l
+ls: cannot access '/home/vagranttt': No such file or directory
 0
-vagrant@vagrant:~/test1$ [[ -d /tmppp ]]
-vagrant@vagrant:~/test1$ echo $?
+```
+Видим, что в pipe передаётся stdout, а stderr выводится в консоль
+```shell
+vagrant@vagrant:~$ tty
+/dev/pts/0
+vagrant@vagrant:~$ ls -l /home/vagrant 2>&1 >`tty` | wc -l
+total 0
+-rw-rw-r-- 1 vagrant vagrant 0 Jan 22 14:15 test
+-rw-rw-r-- 1 vagrant vagrant 0 Jan 22 14:15 test1
+0
+vagrant@vagrant:~$ ls -l /home/vagranttt 2>&1 >`tty` | wc -l
 1
 ```
+В данном случае в pipe передаются ошибки, а стандартный вывод идёт в консоль.
 
-12. Работа с PATH
-```
-vagrant@vagrant:~$ type -a bash
-bash is /usr/bin/bash
-bash is /bin/bash
-vagrant@vagrant:~$ ln -s /usr/bin /tmp/new_path_directory
-vagrant@vagrant:~$ PATH=/tmp/new_path_directory:$PATH
-vagrant@vagrant:~$ type -a bash
-bash is /tmp/new_path_directory/bash
-bash is /usr/bin/bash
-bash is /bin/bash
+9. Файл /proc/$$/environ содержит переменные окружения, установленные при запуске процесса.
+10. файл /proc/<PID>/cmdline содержит полную командную строку для процесса
+    Файл /proc/<PID>/exe это символическая ссылка на исполняемый файл процесса.
+11. SSE4_2
+```shell
+vagrant@vagrant:~$ grep -i SSE /proc/cpuinfo 
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni monitor ssse3 cx16 sse4_1 sse4_2 x2apic popcnt hypervisor lahf_lm pti
 vagrant@vagrant:~$ 
 ```
-
-13. Команда at выполняет разовое задание в определённое время. Команда batch выполняет разовое задание, когда загрузка системы станет меньше 0.8.
+12. Это особенность команды ssh. При запуске ssh c с параметром [command] по умолчанию не выделяется tty. Это можно исправить параметром -t.
+```shell
+vagrant@vagrant:~$ ssh -t localhost 'tty'
+vagrant@localhost's password: 
+/dev/pts/1
+Connection to localhost closed.
+```
+14. Команда tee читает данные со стандартного ввода, выводит на стандартный вывод и в файл.
+В первом случае shell, работающий от имени пользователя не может получить доступ к файлу в каталоге /root. Во втором случае tee запускается от пользователя root и имеет доступ к папке /root. 
