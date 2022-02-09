@@ -1,124 +1,81 @@
-# Домашнее задание к занятию «3.4. Операционный системы, лекция 2»
-1. Создан сервис node_exporter, включён в автозагрузку.
+# Домашнее задание к занятию «3.5. Файловые системы»
+
+1. Sparse файлы - это файлы, в которых последовательности нулей не записываются на диск, а сведения о ней хранятся в метаданных.
+
+2. Файлы, являющиеся жёсткой ссылкой на один объект не могут иметь разные права доступа и владельца, т.к. они ссылаются га одну область дискового пространства. Следовательно при изменении пправ или владельца у одного файла, изменения происходят и у второго.
+
+3. 
 ```shell
-vagrant@vagrant:~$ cat /etc/systemd/system/node_exporter.service
-[Unit]
-Description=Node_Exporter service
-
-[Service]
-EnvironmentFile=-/etc/default/node_exporter
-ExecStart=/opt/node_exporter/node_exporter $NE_OPTS
-
-[Install]
-WantedBy=multi-user.target
+root@vagrant:~# lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+loop0                       7:0    0 55.4M  1 loop  /snap/core18/2128
+loop1                       7:1    0 32.3M  1 loop  /snap/snapd/12704
+loop2                       7:2    0 70.3M  1 loop  /snap/lxd/21029
+loop3                       7:3    0 55.5M  1 loop  /snap/core18/2284
+loop4                       7:4    0 43.4M  1 loop  /snap/snapd/14549
+loop5                       7:5    0 61.9M  1 loop  /snap/core20/1328
+loop6                       7:6    0 67.2M  1 loop  /snap/lxd/21835
+sda                         8:0    0   64G  0 disk  
+├─sda1                      8:1    0    1M  0 part  
+├─sda2                      8:2    0    1G  0 part  /boot
+└─sda3                      8:3    0   63G  0 part  
+  └─ubuntu--vg-ubuntu--lv 253:0    0 31.5G  0 lvm   /
+sdb                         8:16   0  2.5G  0 disk  
+├─sdb1                      8:17   0    2G  0 part  
+│ └─md0                     9:0    0    2G  0 raid1 
+└─sdb2                      8:18   0  511M  0 part  
+  └─md1                     9:1    0 1018M  0 raid0 
+    └─VG_TEST-LV_TEST     253:1    0  100M  0 lvm   /tmp/new
+sdc                         8:32   0  2.5G  0 disk  
+├─sdc1                      8:33   0    2G  0 part  
+│ └─md0                     9:0    0    2G  0 raid1 
+└─sdc2                      8:34   0  511M  0 part  
+  └─md1                     9:1    0 1018M  0 raid0 
+    └─VG_TEST-LV_TEST     253:1    0  100M  0 lvm   /tmp/new
 ```
 ```shell
-root@vagrant:/etc/systemd/user# systemctl daemon-reload
-root@vagrant:/etc/systemd/user# systemctl enable node_exporter.service
-Created symlink /etc/systemd/system/multi-user.target.wants/node_exporter.service → /etc/systemd/system/node_exporter.service.
-root@vagrant:~# systemctl start node_exporter
-root@vagrant:~# systemctl status node_exporter
-● node_exporter.service - Node_Exporter service
-     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: enabled)
-     Active: active (running) since Sun 2022-02-06 17:51:10 UTC; 6s ago
-   Main PID: 1749 (node_exporter)
-      Tasks: 4 (limit: 1071)
-     Memory: 2.4M
-     CGroup: /system.slice/node_exporter.service
-             └─1749 /opt/node_exporter/node_exporter
-
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.700Z caller=node_exporter.go:115 level=info collector=thermal_zone
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.700Z caller=node_exporter.go:115 level=info collector=time
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.700Z caller=node_exporter.go:115 level=info collector=timex
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.701Z caller=node_exporter.go:115 level=info collector=udp_queues
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.701Z caller=node_exporter.go:115 level=info collector=uname
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.702Z caller=node_exporter.go:115 level=info collector=vmstat
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.702Z caller=node_exporter.go:115 level=info collector=xfs
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.703Z caller=node_exporter.go:115 level=info collector=zfs
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.703Z caller=node_exporter.go:199 level=info msg="Listening on" address=:9100
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.704Z caller=tls_config.go:195 level=info msg="TLS is disabled." http2=false
-root@vagrant:~# systemctl stop node_exporter
-root@vagrant:~# systemctl status node_exporter
-● node_exporter.service - Node_Exporter service
-     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: enabled)
-     Active: inactive (dead) since Sun 2022-02-06 17:51:34 UTC; 6s ago
-    Process: 1749 ExecStart=/opt/node_exporter/node_exporter $NE_OPTS (code=killed, signal=TERM)
-   Main PID: 1749 (code=killed, signal=TERM)
-
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.701Z caller=node_exporter.go:115 level=info collector=udp_queues
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.701Z caller=node_exporter.go:115 level=info collector=uname
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.702Z caller=node_exporter.go:115 level=info collector=vmstat
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.702Z caller=node_exporter.go:115 level=info collector=xfs
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.703Z caller=node_exporter.go:115 level=info collector=zfs
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.703Z caller=node_exporter.go:199 level=info msg="Listening on" address=:9100
-Feb 06 17:51:10 vagrant node_exporter[1749]: ts=2022-02-06T17:51:10.704Z caller=tls_config.go:195 level=info msg="TLS is disabled." http2=false
-Feb 06 17:51:34 vagrant systemd[1]: Stopping Node_Exporter service...
-Feb 06 17:51:34 vagrant systemd[1]: node_exporter.service: Succeeded.
-Feb 06 17:51:34 vagrant systemd[1]: Stopped Node_Exporter service.
-```
-2. Для базового мониторинга можно выбрать следующие опции:
-NE_OPTS="--collector.disable-defaults --collector.loadavg --collector.cpu --collector.diskstats --collector.filesystem --collector.meminfo --collector.netdev"
-
-3. Пакет Netdata успешно установлен.
-![ScreenShot](img/img1.png)
-
-4. По выводу dmesg видно, что система загружена в виртуальной среде:
-```shell
-vagrant@vagrant:~$ dmesg 
-[    0.000000] Linux version 5.4.0-91-generic (buildd@lcy01-amd64-017) (gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04)) #102-Ubuntu SMP Fri Nov 5 16:31:28 UTC 2021 (Ubuntu 5.4.0-91.102-generic 5.4.151)
-[    0.000000] Command line: BOOT_IMAGE=/vmlinuz-5.4.0-91-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv ro net.ifnames=0 biosdevname=0
-...
-[    0.000000] DMI: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[    0.000000] Hypervisor detected: KVM
-...
-[    0.108265] Booting paravirtualized kernel on KVM
-...
-```
-5. Параметр fs.nr_open обозначает максимальное количество файловых дескрипторов, которые может создать процесс.
-```shell
-vagrant@vagrant:~$ sudo sysctl -a | grep fs.nr_open
-fs.nr_open = 1048576
+root@vagrant:~# gzip -t /tmp/new/test.gz
+root@vagrant:~# echo $?
+0
 ```
 ```shell
-vagrant@vagrant:~$ ulimit -n
-1024
-```
-ulimit -n  - Максимальное количество открытых файловых дескрипторов.
+root@vagrant:~# mdadm --detail /dev/md0
+/dev/md0:
+           Version : 1.2
+     Creation Time : Wed Feb  9 18:51:06 2022
+        Raid Level : raid1
+        Array Size : 2094080 (2045.00 MiB 2144.34 MB)
+     Used Dev Size : 2094080 (2045.00 MiB 2144.34 MB)
+      Raid Devices : 2
+     Total Devices : 2
+       Persistence : Superblock is persistent
 
-6. 
-```shell
-root@vagrant:~# unshare -f --pid --mount-proc sleep 1h
-root@vagrant:~# ps -aux | grep sleep
-root        2018  0.0  0.0   5476   592 pts/0    S    19:41   0:00 sleep 1h
-root        2076  0.0  0.0   6432   736 pts/0    S+   19:49   0:00 grep --color=auto sleep
-root@vagrant:~# nsenter -t 2018 --pid --mount ps -aux
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root           1  0.0  0.0   5476   592 pts/0    S+   19:41   0:00 sleep 1h
-root           4  0.0  0.3   9084  3608 pts/0    R+   19:50   0:00 ps -aux
+       Update Time : Wed Feb  9 19:25:34 2022
+             State : clean, degraded 
+    Active Devices : 1
+   Working Devices : 1
+    Failed Devices : 1
+     Spare Devices : 0
+
+Consistency Policy : resync
+
+              Name : vagrant:0  (local to host vagrant)
+              UUID : c3aec88c:cbdc4138:67d78335:b16d1141
+            Events : 19
+
+    Number   Major   Minor   RaidDevice State
+       -       0        0        0      removed
+       1       8       33        1      active sync   /dev/sdc1
+
+       0       8       17        -      faulty   /dev/sdb1
 root@vagrant:~# 
 ```
-7. :(){ :|:& };: - fork бомба. Данная команда генерирует процессы до тех пор, пока не закончится память.
-Задушить систему огромным количеством процессов не дал механизм cgroup, который по умолчанию ограничивает количество процессов в сессии на уровне 33 процентов от максимального кол-ва процессов всей системы.  
-Настройки данного параметра хранятся в файле /usr/lib/systemd/system/user-.slice.d/10-defaults.conf
 ```shell
-root@vagrant:~# cat /usr/lib/systemd/system/user-.slice.d/10-defaults.conf
-#  SPDX-License-Identifier: LGPL-2.1+
-#
-#  This file is part of systemd.
-#
-#  systemd is free software; you can redistribute it and/or modify it
-#  under the terms of the GNU Lesser General Public License as published by
-#  the Free Software Foundation; either version 2.1 of the License, or
-#  (at your option) any later version.
-
-[Unit]
-Description=User Slice of UID %j
-Documentation=man:user@.service(5)
-After=systemd-user-sessions.service
-StopWhenUnneeded=yes
-
-[Slice]
-TasksMax=33%
-
+[ 3836.028502] md/raid1:md0: Disk failure on sdb1, disabling device.
+               md/raid1:md0: Operation continuing on 1 devices.
 ```
-Изменить максимальное количество запускаемых процессов можно параметром TasksMax.
+```shell
+root@vagrant:~# gzip -t /tmp/new/test.gz
+root@vagrant:~# echo $?
+0
+```
