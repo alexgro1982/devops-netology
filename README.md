@@ -1,81 +1,241 @@
-# Домашнее задание к занятию «3.5. Файловые системы»
+# Домашнее задание к занятию «3.6. Компьютерные сети, лекция 1»
 
-1. Sparse файлы - это файлы, в которых последовательности нулей не записываются на диск, а сведения о ней хранятся в метаданных.
-
-2. Файлы, являющиеся жёсткой ссылкой на один объект не могут иметь разные права доступа и владельца, т.к. они ссылаются га одну область дискового пространства. Следовательно при изменении пправ или владельца у одного файла, изменения происходят и у второго.
-
-3. 
+1.
 ```shell
-root@vagrant:~# lsblk
-NAME                      MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
-loop0                       7:0    0 55.4M  1 loop  /snap/core18/2128
-loop1                       7:1    0 32.3M  1 loop  /snap/snapd/12704
-loop2                       7:2    0 70.3M  1 loop  /snap/lxd/21029
-loop3                       7:3    0 55.5M  1 loop  /snap/core18/2284
-loop4                       7:4    0 43.4M  1 loop  /snap/snapd/14549
-loop5                       7:5    0 61.9M  1 loop  /snap/core20/1328
-loop6                       7:6    0 67.2M  1 loop  /snap/lxd/21835
-sda                         8:0    0   64G  0 disk  
-├─sda1                      8:1    0    1M  0 part  
-├─sda2                      8:2    0    1G  0 part  /boot
-└─sda3                      8:3    0   63G  0 part  
-  └─ubuntu--vg-ubuntu--lv 253:0    0 31.5G  0 lvm   /
-sdb                         8:16   0  2.5G  0 disk  
-├─sdb1                      8:17   0    2G  0 part  
-│ └─md0                     9:0    0    2G  0 raid1 
-└─sdb2                      8:18   0  511M  0 part  
-  └─md1                     9:1    0 1018M  0 raid0 
-    └─VG_TEST-LV_TEST     253:1    0  100M  0 lvm   /tmp/new
-sdc                         8:32   0  2.5G  0 disk  
-├─sdc1                      8:33   0    2G  0 part  
-│ └─md0                     9:0    0    2G  0 raid1 
-└─sdc2                      8:34   0  511M  0 part  
-  └─md1                     9:1    0 1018M  0 raid0 
-    └─VG_TEST-LV_TEST     253:1    0  100M  0 lvm   /tmp/new
+alexgro@alex-book:~$ telnet stackoverflow.com 80
+Trying 151.101.65.69...
+Connected to stackoverflow.com.
+Escape character is '^]'.
+GET /questions HTTP/1.0
+HOST: stackoverflow.com
+
+HTTP/1.1 301 Moved Permanently
+cache-control: no-cache, no-store, must-revalidate
+location: https://stackoverflow.com/questions
+x-request-guid: 6388a691-5236-4ace-acc6-d4fc230eaced
+feature-policy: microphone 'none'; speaker 'none'
+content-security-policy: upgrade-insecure-requests; frame-ancestors 'self' https://stackexchange.com
+Accept-Ranges: bytes
+Date: Thu, 10 Feb 2022 19:50:09 GMT
+Via: 1.1 varnish
+Connection: close
+X-Served-By: cache-ams21041-AMS
+X-Cache: MISS
+X-Cache-Hits: 0
+X-Timer: S1644522610.892888,VS0,VE75
+Vary: Fastly-SSL
+X-DNS-Prefetch-Control: off
+Set-Cookie: prov=010f9084-36d9-ef19-df1e-9180572d5c74; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly
+
+Connection closed by foreign host.
 ```
-```shell
-root@vagrant:~# gzip -t /tmp/new/test.gz
-root@vagrant:~# echo $?
-0
+Данный отвер сервера говорит о том, что страница /questions постоянно перемещена в https://stackoverflow.com/questions
+2. Консоль разнаботчика:  
+При отравке запроса на http://stackoverflow.com, в первом ответе присутствует код 307, который означает перенаправление на адрес https://stackoverflow.com/. 
 ```
-```shell
-root@vagrant:~# mdadm --detail /dev/md0
-/dev/md0:
-           Version : 1.2
-     Creation Time : Wed Feb  9 18:51:06 2022
-        Raid Level : raid1
-        Array Size : 2094080 (2045.00 MiB 2144.34 MB)
-     Used Dev Size : 2094080 (2045.00 MiB 2144.34 MB)
-      Raid Devices : 2
-     Total Devices : 2
-       Persistence : Superblock is persistent
-
-       Update Time : Wed Feb  9 19:25:34 2022
-             State : clean, degraded 
-    Active Devices : 1
-   Working Devices : 1
-    Failed Devices : 1
-     Spare Devices : 0
-
-Consistency Policy : resync
-
-              Name : vagrant:0  (local to host vagrant)
-              UUID : c3aec88c:cbdc4138:67d78335:b16d1141
-            Events : 19
-
-    Number   Major   Minor   RaidDevice State
-       -       0        0        0      removed
-       1       8       33        1      active sync   /dev/sdc1
-
-       0       8       17        -      faulty   /dev/sdb1
-root@vagrant:~# 
+Request URL: http://stackoverflow.com/
+Request Method: GET
+Status Code: 307 Internal Redirect
+Referrer Policy: strict-origin-when-cross-origin
 ```
+Время загрузки страницы 2.71 с.
+Смый долгий запрос:  
+Request URL: chrome-extension://cjpalhdlnbpafiamejdnhcphjbkeiagm/web_accessible_resources/google-analytics_analytics.js?secret=qu98u5  
+![](img/img2.png)
+
+3.
 ```shell
-[ 3836.028502] md/raid1:md0: Disk failure on sdb1, disabling device.
-               md/raid1:md0: Operation continuing on 1 devices.
+alexgro@alex-book:~$ curl ifconfig.me/ip
+91.218.102.73
 ```
+4. 
+Провайдер -  Lukjanova Lydia Andreevna PE (KVARTAL-NET) 
+Автономная система  -   AS59533 
 ```shell
-root@vagrant:~# gzip -t /tmp/new/test.gz
-root@vagrant:~# echo $?
-0
+alexgro@alex-book:~$ whois 91.218.102.73
+% This is the RIPE Database query service.
+% The objects are in RPSL format.
+%
+% The RIPE Database is subject to Terms and Conditions.
+% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+
+% Note: this output has been filtered.
+%       To receive output for a database update, use the "-B" flag.
+
+% Information related to '91.218.100.0 - 91.218.103.255'
+
+% Abuse contact for '91.218.100.0 - 91.218.103.255' is 'abuse@kvartal.tv'
+
+inetnum:        91.218.100.0 - 91.218.103.255
+netname:        LUKYANOVA-NET
+country:        RU
+org:            ORG-LLAP1-RIPE
+admin-c:        DNK21-RIPE
+tech-c:         DNK21-RIPE
+status:         ASSIGNED PI
+mnt-by:         RIPE-NCC-END-MNT
+mnt-by:         MNT-LUKYANOVA
+mnt-routes:     MNT-LUKYANOVA
+mnt-domains:    MNT-LUKYANOVA
+created:        2010-07-08T15:23:42Z
+last-modified:  2019-03-19T10:33:25Z
+source:         RIPE
+sponsoring-org: ORG-CS216-RIPE
+
+organisation:   ORG-LLAP1-RIPE
+org-name:       Lukjanova Lydia Andreevna PE
+org-type:       OTHER
+address:        Perm region, Lysva, Fedoseeva 33A
+abuse-c:        AR23173-RIPE
+mnt-ref:        MNT-LUKYANOVA
+mnt-by:         MNT-LUKYANOVA
+created:        2010-07-01T14:45:10Z
+last-modified:  2014-11-17T16:28:56Z
+source:         RIPE # Filtered
+
+person:         Dmitriy N. Kolosnitsyn
+address:        Perm region, Lysva, Fedoseeva 33A
+phone:          +73424954555
+nic-hdl:        DNK21-RIPE
+created:        2010-07-01T14:45:07Z
+last-modified:  2018-12-19T12:24:03Z
+mnt-by:         MNT-LUKYANOVA
+source:         RIPE # Filtered
+
+% Information related to '91.218.102.0/24AS59533'
+
+route:          91.218.102.0/24
+descr:          KVARTAL-NET, Lysva, Russia
+descr:          KVARTAL Lysva PPPoE Clients
+origin:         AS59533
+mnt-by:         MNT-LUKYANOVA
+created:        2012-08-04T11:31:16Z
+last-modified:  2012-08-04T11:31:16Z
+source:         RIPE
+
+% This query was served by the RIPE Database Query Service version 1.102.2 (ANGUS)
+
+
+```
+5.
+```shell
+alexgro@alex-book:~$ traceroute -nA 8.8.8.8
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  192.168.88.1 [*]  6.580 ms  6.520 ms  6.491 ms
+ 2  10.10.1.1 [*]  6.465 ms  6.437 ms  6.411 ms
+ 3  10.150.1.1 [*]  203.728 ms  203.755 ms  203.702 ms
+ 4  188.43.19.230 [AS20485]  6.245 ms  6.160 ms  6.092 ms
+ 5  * * *
+ 6  188.43.239.122 [AS20485]  31.679 ms 188.43.239.130 [AS20485]  28.906 ms  28.852 ms
+ 7  188.43.239.9 [AS20485]  29.750 ms  29.744 ms  29.736 ms
+ 8  217.150.55.234 [AS20485]  41.327 ms  41.278 ms  48.009 ms
+ 9  188.43.10.141 [AS20485]  43.351 ms  39.388 ms  44.820 ms
+10  108.170.250.130 [AS15169]  45.248 ms 108.170.250.34 [AS15169]  44.734 ms 108.170.250.113 [AS15169]  44.726 ms
+11  * 172.253.66.116 [AS15169]  60.607 ms  72.708 ms
+12  108.170.232.251 [AS15169]  72.544 ms 172.253.65.159 [AS15169]  56.377 ms 172.253.65.82 [AS15169]  72.497 ms
+13  216.239.42.23 [AS15169]  55.561 ms 142.250.210.45 [AS15169]  55.549 ms 172.253.51.249 [AS15169]  53.773 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  * 8.8.8.8 [AS15169]  56.698 ms *
+
+```
+6.
+![](img/img3.png)
+
+7.
+```shell
+alexgro@alex-book:~$ dig dns.google
+
+; <<>> DiG 9.16.15-Debian <<>> dns.google
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 2397
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 4, ADDITIONAL: 4
+
+;; QUESTION SECTION:
+;dns.google.			IN	A
+
+;; ANSWER SECTION:
+dns.google.		145	IN	A	8.8.4.4
+dns.google.		145	IN	A	8.8.8.8
+
+;; AUTHORITY SECTION:
+dns.google.		6431	IN	NS	ns4.zdns.google.
+dns.google.		6431	IN	NS	ns1.zdns.google.
+dns.google.		6431	IN	NS	ns2.zdns.google.
+dns.google.		6431	IN	NS	ns3.zdns.google.
+
+;; ADDITIONAL SECTION:
+ns4.zdns.google.	126733	IN	A	216.239.38.114
+ns1.zdns.google.	126733	IN	A	216.239.32.114
+ns2.zdns.google.	126733	IN	A	216.239.34.114
+ns3.zdns.google.	126733	IN	A	216.239.36.114
+
+;; Query time: 8 msec
+;; SERVER: 192.168.88.1#53(192.168.88.1)
+;; WHEN: Пт фев 11 00:44:09 +05 2022
+;; MSG SIZE  rcvd: 201
+
+```
+
+8.
+```shell
+alexgro@alex-book:~$ dig -x 8.8.4.4
+
+; <<>> DiG 9.16.15-Debian <<>> -x 8.8.4.4
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 25486
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 2
+
+;; QUESTION SECTION:
+;4.4.8.8.in-addr.arpa.		IN	PTR
+
+;; ANSWER SECTION:
+4.4.8.8.in-addr.arpa.	25810	IN	PTR	dns.google.
+
+;; AUTHORITY SECTION:
+8.8.in-addr.arpa.	19817	IN	NS	ns2.level3.net.
+8.8.in-addr.arpa.	19817	IN	NS	ns1.level3.net.
+
+;; ADDITIONAL SECTION:
+ns2.level3.net.		835	IN	A	209.244.0.2
+ns1.level3.net.		835	IN	A	209.244.0.1
+
+;; Query time: 8 msec
+;; SERVER: 192.168.88.1#53(192.168.88.1)
+;; WHEN: Пт фев 11 00:47:09 +05 2022
+;; MSG SIZE  rcvd: 140
+
+alexgro@alex-book:~$ dig -x 8.8.8.8
+
+; <<>> DiG 9.16.15-Debian <<>> -x 8.8.8.8
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 12992
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 2
+
+;; QUESTION SECTION:
+;8.8.8.8.in-addr.arpa.		IN	PTR
+
+;; ANSWER SECTION:
+8.8.8.8.in-addr.arpa.	15527	IN	PTR	dns.google.
+
+;; AUTHORITY SECTION:
+8.8.in-addr.arpa.	19790	IN	NS	ns1.level3.net.
+8.8.in-addr.arpa.	19790	IN	NS	ns2.level3.net.
+
+;; ADDITIONAL SECTION:
+ns1.level3.net.		808	IN	A	209.244.0.1
+ns2.level3.net.		808	IN	A	209.244.0.2
+
+;; Query time: 4 msec
+;; SERVER: 192.168.88.1#53(192.168.88.1)
+;; WHEN: Пт фев 11 00:47:35 +05 2022
+;; MSG SIZE  rcvd: 140
+
 ```
