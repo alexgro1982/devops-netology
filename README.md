@@ -1,230 +1,284 @@
-# Домашнее задание к занятию «3.8. Компьютерные сети, лекция 3»
+# Домашнее задание к занятию «3.9. Элементы безопасности информационных систем»
 
-1. 
+1,2. Bitwarden установлен в браузер Chromium, успешно настроена двухфакторная ауткнтификация.
+![](img/img_3_9_1.png)
+![](img/img_3_9_2.png)
+![](img/img_3_9_3.png)
+![](img/img_3_9_4.png)
+
+3. vag
+Устанавливаем apache2 и генерируем сертификат
 ```shell
-route-views>show ip route 91.218.102.73
-Routing entry for 91.218.102.0/24
-  Known via "bgp 6447", distance 20, metric 0
-  Tag 6939, type external
-  Last update from 64.71.137.241 2w4d ago
-  Routing Descriptor Blocks:
-  * 64.71.137.241, from 64.71.137.241, 2w4d ago
-      Route metric is 0, traffic share count is 1
-      AS Hops 3
-      Route tag 6939
-      MPLS label: none
+vagrant@vagrant:~$ sudo apt-get install apache2
+vagrant@vagrant:~$ openssl genpkey -algorithm RSA -out private.key
+vagrant@vagrant:~/ssl$ openssl req -key private.key -new -out req.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:RU
+State or Province Name (full name) [Some-State]:Permsky kray
+Locality Name (eg, city) []:Lysva
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:LZEP
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:Aleksandr Groshev
+Email Address []:aygroshev@mail.ru
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+vagrant@vagrant:~/ssl$ openssl x509 -signkey private.key -in req.csr -req -days 365 -out mycert.crt
+Signature ok
+subject=C = RU, ST = Permsky kray, L = Lysva, O = LZEP, CN = Aleksandr Groshev, emailAddress = aygroshev@mail.ru
+Getting Private key
+```
+Конфигураоицнный файл apache:
+```shell
+root@vagrant:/etc/apache2# cat /etc/apache2/sites-enabled/mysite-ssl.conf 
+<IfModule mod_ssl.c>
+	<VirtualHost _default_:443>
+		ServerAdmin aygroshev@mail.ru
+		DocumentRoot /var/www/mysite
+		ErrorLog ${APACHE_LOG_DIR}/error.log
+		CustomLog ${APACHE_LOG_DIR}/access.log combined
+		SSLEngine on
+		SSLCertificateFile	/etc/ssl/certs/mycert.crt
+		SSLCertificateKeyFile /etc/ssl/private/private.key
+		<FilesMatch "\.(cgi|shtml|phtml|php)$">
+				SSLOptions +StdEnvVars
+		</FilesMatch>
+		<Directory /usr/lib/cgi-bin>
+				SSLOptions +StdEnvVars
+		</Directory>
+	</VirtualHost>
+</IfModule>
+```
+Проверка работы сайта
+```shell
+root@vagrant:/etc/apache2# openssl s_client -showcerts -connect 127.0.0.1:443
+CONNECTED(00000003)
+Can't use SSL_get_servername
+depth=0 C = RU, ST = Permsky kray, L = Lysva, O = LZEP, CN = Aleksandr Groshev, emailAddress = aygroshev@mail.ru
+verify error:num=18:self signed certificate
+verify return:1
+depth=0 C = RU, ST = Permsky kray, L = Lysva, O = LZEP, CN = Aleksandr Groshev, emailAddress = aygroshev@mail.ru
+verify return:1
+---
+Certificate chain
+ 0 s:C = RU, ST = Permsky kray, L = Lysva, O = LZEP, CN = Aleksandr Groshev, emailAddress = aygroshev@mail.ru
+   i:C = RU, ST = Permsky kray, L = Lysva, O = LZEP, CN = Aleksandr Groshev, emailAddress = aygroshev@mail.ru
 ```
 ```shell
-route-views>show bgp 91.218.102.73      
-BGP routing table entry for 91.218.102.0/24, version 299240947
-Paths: (22 available, best #22, table default)
-  Not advertised to any peer
-  Refresh Epoch 1
-  101 3491 20485 20485 59533
-    209.124.176.223 from 209.124.176.223 (209.124.176.223)
-      Origin IGP, localpref 100, valid, external
-      Community: 101:20300 101:22100 3491:300 3491:311 3491:9001 3491:9080 3491:9081 3491:9087 3491:62210 3491:62220 20485:10059
-      path 7FE12BD6D618 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3333 31133 59533
-    193.0.0.56 from 193.0.0.56 (193.0.0.56)
-      Origin IGP, localpref 100, valid, external
-      path 7FE00B38C8E8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  8283 31133 59533
-    94.142.247.3 from 94.142.247.3 (94.142.247.3)
-      Origin IGP, metric 0, localpref 100, valid, external
-      Community: 8283:1 8283:101
-      unknown transitive attribute: flag 0xE0 type 0x20 length 0x18
-        value 0000 205B 0000 0000 0000 0001 0000 205B
-              0000 0005 0000 0001 
-      path 7FE0A3311DE8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  1351 6939 20485 59533
-    132.198.255.253 from 132.198.255.253 (132.198.255.253)
-      Origin IGP, localpref 100, valid, external
-      path 7FE1152127E0 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  57866 3356 20485 59533
-    37.139.139.17 from 37.139.139.17 (37.139.139.17)
-      Origin IGP, metric 0, localpref 100, valid, external
-      Community: 3356:2 3356:22 3356:100 3356:123 3356:501 3356:903 3356:2065 20485:10059
-      path 7FE0B16A8DA0 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  852 31133 59533
-    154.11.12.212 from 154.11.12.212 (96.1.209.43)
-      Origin IGP, metric 0, localpref 100, valid, external
-      path 7FE0458997C8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  20130 6939 20485 59533
-    140.192.8.16 from 140.192.8.16 (140.192.8.16)
-      Origin IGP, localpref 100, valid, external
-      path 7FE046F21910 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  701 5511 12389 59533 59533 59533
-    137.39.3.55 from 137.39.3.55 (137.39.3.55)
-      Origin IGP, localpref 100, valid, external
-      path 7FE0EEDCD300 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  53767 174 31133 59533
-    162.251.163.2 from 162.251.163.2 (162.251.162.3)
-      Origin IGP, localpref 100, valid, external
-      Community: 174:21101 174:22005 53767:5000
-      path 7FE045CE2C60 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3549 3356 20485 59533
-    208.51.134.254 from 208.51.134.254 (67.16.168.191)
-      Origin IGP, metric 0, localpref 100, valid, external
-      Community: 3356:2 3356:22 3356:100 3356:123 3356:501 3356:903 3356:2065 3549:2581 3549:30840 20485:10059
-      path 7FE1027DC348 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3356 20485 59533
-    4.68.4.46 from 4.68.4.46 (4.69.184.201)
-      Origin IGP, metric 0, localpref 100, valid, external
-      Community: 3356:2 3356:22 3356:100 3356:123 3356:501 3356:903 3356:2065 20485:10059
-      path 7FE15DEF6B10 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  4901 6079 31133 59533
-    162.250.137.254 from 162.250.137.254 (162.250.137.254)
-      Origin IGP, localpref 100, valid, external
-      Community: 65000:10100 65000:10300 65000:10400
-      path 7FE0DFDC34D8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  7660 2516 6762 20485 59533
-    203.181.248.168 from 203.181.248.168 (203.181.248.168)
-      Origin IGP, localpref 100, valid, external
-      Community: 2516:1030 7660:9003
-      path 7FE02D5FD6A8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  20912 3257 3356 20485 59533
-    212.66.96.126 from 212.66.96.126 (212.66.96.126)
-      Origin IGP, localpref 100, valid, external
-      Community: 3257:8070 3257:30515 3257:50001 3257:53900 3257:53902 20912:65004
-      path 7FE0DDB6E368 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3303 20485 59533
-    217.192.89.50 from 217.192.89.50 (138.187.128.158)
-      Origin IGP, localpref 100, valid, external
-      Community: 3303:1004 3303:1006 3303:1030 3303:1031 3303:3056 20485:10059 65101:1082 65102:1000 65103:276 65104:150
-      path 7FE15FB86260 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  7018 3356 20485 59533
-    12.0.1.63 from 12.0.1.63 (12.0.1.63)
-      Origin IGP, localpref 100, valid, external
-      Community: 7018:5000 7018:37232
-      path 7FE0DFEF9D80 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3561 3910 3356 20485 59533
-    206.24.210.80 from 206.24.210.80 (206.24.210.80)
-      Origin IGP, localpref 100, valid, external
-      path 7FE0DCDCEEB8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 2
-  2497 20485 59533
-    202.232.0.2 from 202.232.0.2 (58.138.96.254)
-      Origin IGP, localpref 100, valid, external
-      path 7FE0F709BA70 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  49788 12552 31133 59533
-    91.218.184.60 from 91.218.184.60 (91.218.184.60)
-      Origin IGP, localpref 100, valid, external
-      Community: 12552:12000 12552:12100 12552:12101 12552:22000
-      Extended Community: 0x43:100:1
-      path 7FE0413E50A8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  1221 4637 31133 59533
-    203.62.252.83 from 203.62.252.83 (203.62.252.83)
-      Origin IGP, localpref 100, valid, external
-      path 7FE0AE4BA1C8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  3257 1299 31133 59533
-    89.149.178.10 from 89.149.178.10 (213.200.83.26)
-      Origin IGP, metric 10, localpref 100, valid, external
-      Community: 3257:8794 3257:30052 3257:50001 3257:54900 3257:54901
-      path 7FE139A84FF8 RPKI State not found
-      rx pathid: 0, tx pathid: 0
-  Refresh Epoch 1
-  6939 20485 59533
-    64.71.137.241 from 64.71.137.241 (216.218.252.164)
-      Origin IGP, localpref 100, valid, external, best
-      path 7FE08D6B82E0 RPKI State not found
-      rx pathid: 0, tx pathid: 0x0
+root@vagrant:/etc/apache2# curl -k https://127.0.0.1
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>My Site</title>
+  </head>
+  <body>
+    My Site
+  </body>
+</html>
+```
+4. Проверка сайта nc.lpec.ru
+```shell
+root@vagrant:~/testssl.sh# ./testssl.sh -U --sneaky https://nc.lpec.ru
+
+###########################################################
+    testssl.sh       3.1dev from https://testssl.sh/dev/
+    (88cf7e6 2022-03-09 20:16:24 -- )
+
+      This program is free software. Distribution and
+             modification under GPLv2 permitted.
+      USAGE w/o ANY WARRANTY. USE IT AT YOUR OWN RISK!
+
+       Please file bugs @ https://testssl.sh/bugs/
+
+###########################################################
+
+ Using "OpenSSL 1.0.2-chacha (1.0.2k-dev)" [~183 ciphers]
+ on vagrant:./bin/openssl.Linux.x86_64
+ (built: "Jan 18 17:12:17 2019", platform: "linux-x86_64")
+
+
+ Start 2022-03-10 19:58:42        -->> 91.219.200.26:443 (nc.lpec.ru) <<--
+
+ rDNS (91.219.200.26):   vpn1.lpec.ru.
+ Service detected:       HTTP
+
+
+ Testing vulnerabilities 
+
+ Heartbleed (CVE-2014-0160)                not vulnerable (OK), no heartbeat extension
+ CCS (CVE-2014-0224)                       not vulnerable (OK)
+ Ticketbleed (CVE-2016-9244), experiment.  not vulnerable (OK)
+ ROBOT                                     not vulnerable (OK)
+ Secure Renegotiation (RFC 5746)           supported (OK)
+ Secure Client-Initiated Renegotiation     not vulnerable (OK)
+ CRIME, TLS (CVE-2012-4929)                not vulnerable (OK)
+ BREACH (CVE-2013-3587)                    no gzip/deflate/compress/br HTTP compression (OK)  - only supplied "/" tested
+ POODLE, SSL (CVE-2014-3566)               not vulnerable (OK)
+ TLS_FALLBACK_SCSV (RFC 7507)              No fallback possible (OK), no protocol below TLS 1.2 offered
+ SWEET32 (CVE-2016-2183, CVE-2016-6329)    not vulnerable (OK)
+ FREAK (CVE-2015-0204)                     not vulnerable (OK)
+ DROWN (CVE-2016-0800, CVE-2016-0703)      not vulnerable on this host and port (OK)
+                                           make sure you don't use this certificate elsewhere with SSLv2 enabled services
+                                           https://censys.io/ipv4?q=C3EBEFA89FB21835BFB1D1A1DB9D4C7D390E5453EF0D1EE4DF2FADBB4E34DC1F could help you to find out
+ LOGJAM (CVE-2015-4000), experimental      not vulnerable (OK): no DH EXPORT ciphers, no DH key detected with <= TLS 1.2
+ BEAST (CVE-2011-3389)                     not vulnerable (OK), no SSL3 or TLS1
+ LUCKY13 (CVE-2013-0169), experimental     potentially VULNERABLE, uses cipher block chaining (CBC) ciphers with TLS. Check patches
+ Winshock (CVE-2014-6321), experimental    not vulnerable (OK)
+ RC4 (CVE-2013-2566, CVE-2015-2808)        no RC4 ciphers detected (OK)
+
+ Done 2022-03-10 19:59:18 [  40s] -->> 91.219.200.26:443 (nc.lpec.ru) <<--
 
 ```
-2. 
-```shell
-root@vagrant:~# ip link
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
-    link/ether 08:00:27:b1:28:5d brd ff:ff:ff:ff:ff:ff
-5: dummy0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-    link/ether 06:06:be:d5:cc:ac brd ff:ff:ff:ff:ff:ff
-6: dummy1: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-    link/ether b2:00:84:55:53:a8 brd ff:ff:ff:ff:ff:ff
-```
-```shell
-root@vagrant:~# ip addr add 10.0.3.5/24 dev dummy1
-root@vagrant:~# ip link set dummy1 up
-root@vagrant:~# ping 10.0.3.5
-PING 10.0.3.5 (10.0.3.5) 56(84) bytes of data.
-64 bytes from 10.0.3.5: icmp_seq=1 ttl=64 time=0.042 ms
-64 bytes from 10.0.3.5: icmp_seq=2 ttl=64 time=0.067 ms
-64 bytes from 10.0.3.5: icmp_seq=3 ttl=64 time=0.063 ms
-64 bytes from 10.0.3.5: icmp_seq=4 ttl=64 time=0.071 ms
-```
-```shell
-root@vagrant:~# ip route add 192.168.9.5/32 via 10.0.2.15
-root@vagrant:~# ip route add 192.168.10.0/24 via 10.0.2.16
-root@vagrant:~# ip route show
-default via 10.0.2.2 dev eth0 proto dhcp src 10.0.2.15 metric 100 
-10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15 
-10.0.2.2 dev eth0 proto dhcp scope link src 10.0.2.15 metric 100 
-10.0.3.0/24 dev dummy1 proto kernel scope link src 10.0.3.5 
-192.168.9.5 via 10.0.2.15 dev eth0 
-192.168.10.0/24 via 10.0.2.16 dev eth0 
-```
-
-3. TCP
-```shell
-root@vagrant:~# ss -ntpa
-State              Recv-Q             Send-Q                          Local Address:Port                           Peer Address:Port              Process                                                          
-LISTEN             0                  4096                            127.0.0.53%lo:53                                  0.0.0.0:*                  users:(("systemd-resolve",pid=592,fd=13))                       
-LISTEN             0                  128                                   0.0.0.0:22                                  0.0.0.0:*                  users:(("sshd",pid=679,fd=3))                                   
-ESTAB              0                  0                                   10.0.2.15:22                                 10.0.2.2:40742              users:(("sshd",pid=957,fd=4),("sshd",pid=920,fd=4))             
-LISTEN             0                  128                                      [::]:22                                     [::]:*                  users:(("sshd",pid=679,fd=4))                                   
-root@vagrant:~# 
-```
-Из вывода команды ss видно, что открыто 2 порта: 53 и 22. Установлено одно соединение через порт 22. Порт 53 прослушивает процесс systemd-resolve, порт 22 прослушивает процесс sshd.  
-
-4. UDP
-```shell
-root@vagrant:~# ss -nupa
-State               Recv-Q               Send-Q                              Local Address:Port                             Peer Address:Port              Process                                                 
-UNCONN              0                    0                                   127.0.0.53%lo:53                                    0.0.0.0:*                  users:(("systemd-resolve",pid=592,fd=12))              
-UNCONN              0                    0                                  10.0.2.15%eth0:68                                    0.0.0.0:*                  users:(("systemd-network",pid=590,fd=19))              
-root@vagrant:~# 
-```
-Из вывода видно тот же 53 порт на интерфейсе lo. Слушается процессом systemd-resolve. Порт 68 слушается процессом dhcp клиента systemd-network.
-
 5. 
-![](img/222.drawio.png)   
+```shell
+alexgro@alex-book:~$ ssh-keygen 
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/alexgro/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/alexgro/.ssh/id_rsa
+Your public key has been saved in /home/alexgro/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:X++ZnHfvoohBQQBoVj3McH1Wm4fWjRnFStIlvNc/PSE alexgro@alex-book
+The key's randomart image is:
++---[RSA 3072]----+
+|   o+*oo.  ..oo+o|
+|  +  .=.. o .=+*.|
+| o     ..o  =o=oo|
+|         . . Eo.o|
+|        S   . ..+|
+|       . . . . oo|
+|        . .   . o|
+|         o . o.+o|
+|        . . ..*+=|
++----[SHA256]-----+
+```
+```shell
+alexgro@alex-book:~/.ssh$ ssh-copy-id root@192.168.9.6
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+root@192.168.9.6's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'root@192.168.9.6'"
+and check to make sure that only the key(s) you wanted were added.
+
+alexgro@alex-book:~/.ssh$ ssh root@192.168.9.6
+Last login: Wed Mar  9 09:02:21 2022 from 192.168.9.8
+[root@testgate ~]# 
+```
+
+6. 
+```shell
+alexgro@alex-book:~/.ssh$ cat config 
+Host testgate
+	HostName 192.168.9.6
+	IdentityFile ~/.ssh/id_rsa
+	User root
+Host *    
+	User default_username    
+	IdentityFile ~/.ssh/id_rsa    
+	Protocol 2
+
+alexgro@alex-book:~/.ssh$ touch config
+alexgro@alex-book:~/.ssh$ chmod 600 config 
+alexgro@alex-book:~/.ssh$ vi config 
+alexgro@alex-book:~/.ssh$ ssh testgate
+Last login: Fri Mar 11 23:32:04 2022 from 192.168.9.8
+[root@testgate ~]# 
+```
+
+7. Использование tcpdump
+```shell
+root@alex-book:~# tcpdump -c 100 -i wlp6s0 -w net.dump
+tcpdump: listening on wlp6s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+100 packets captured
+234 packets received by filter
+0 packets dropped by kernel
+root@alex-book:~# 
+```
+![](img/img_3_9_5.png)
+
+8. Сканирование открытых портов с помощью nmap
+```shell
+root@alex-book:/home/alexgro# nmap -v -sV scanme.nmap.org
+Starting Nmap 7.80 ( https://nmap.org ) at 2022-03-11 23:57 +05
+NSE: Loaded 45 scripts for scanning.
+Initiating Ping Scan at 23:57
+Scanning scanme.nmap.org (45.33.32.156) [4 ports]
+Completed Ping Scan at 23:57, 0.22s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 23:57
+Completed Parallel DNS resolution of 1 host. at 23:57, 0.03s elapsed
+Initiating SYN Stealth Scan at 23:57
+Scanning scanme.nmap.org (45.33.32.156) [1000 ports]
+Discovered open port 22/tcp on 45.33.32.156
+Discovered open port 80/tcp on 45.33.32.156
+Discovered open port 31337/tcp on 45.33.32.156
+Discovered open port 9929/tcp on 45.33.32.156
+Completed SYN Stealth Scan at 23:57, 2.58s elapsed (1000 total ports)
+Initiating Service scan at 23:57
+Scanning 4 services on scanme.nmap.org (45.33.32.156)
+Completed Service scan at 23:57, 6.42s elapsed (4 services on 1 host)
+NSE: Script scanning 45.33.32.156.
+Initiating NSE at 23:57
+Completed NSE at 23:57, 0.92s elapsed
+Initiating NSE at 23:57
+Completed NSE at 23:57, 0.82s elapsed
+Nmap scan report for scanme.nmap.org (45.33.32.156)
+Host is up (0.24s latency).
+Other addresses for scanme.nmap.org (not scanned): 2600:3c01::f03c:91ff:fe18:bb2f
+Not shown: 996 closed ports
+PORT      STATE SERVICE    VERSION
+22/tcp    open  ssh        OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)
+80/tcp    open  http       Apache httpd 2.4.7 ((Ubuntu))
+9929/tcp  open  nping-echo Nping echo
+31337/tcp open  tcpwrapped
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.75 seconds
+           Raw packets sent: 1067 (46.924KB) | Rcvd: 1064 (42.576KB)
+```
+
+Открытые порты хоста scanme.nmap.org:
+PORT      STATE SERVICE    VERSION
+22/tcp    open  ssh        OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)
+80/tcp    open  http       Apache httpd 2.4.7 ((Ubuntu))
+9929/tcp  open  nping-echo Nping echo
+31337/tcp open  tcpwrapped
+
+9. Работа с ufw
+```shell
+root@vagrant:~# ufw allow 22/tcp
+Rules updated
+Rules updated (v6)
+root@vagrant:~# ufw allow 80/tcp
+Rule added
+Rule added (v6)
+root@vagrant:~# ufw allow 443/tcp
+Rule added
+Rule added (v6)
+root@vagrant:~# ufw status numbered
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                  
+[ 2] 80/tcp                     ALLOW IN    Anywhere                  
+[ 3] 443/tcp                    ALLOW IN    Anywhere                  
+[ 4] 22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 5] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 6] 443/tcp (v6)               ALLOW IN    Anywhere (v6)             
+
+```
