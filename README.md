@@ -118,6 +118,6 @@ if [[ $(grep '\[04-script-01-bash\]' $1 | wc -l) -gt 0 && $(cat $1 | wc -m) -le 
                 echo 'Commit massage pass.'
         else
                 echo 'Commit massage fail!'
-                exit 1
+                exit 1 
 fi
 ```
