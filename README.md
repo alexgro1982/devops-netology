@@ -122,12 +122,11 @@ alexgro@alex-book:~/Документы/netology$ ./script3.py /home/alexgro/До
 #!/usr/bin/env python3
 
 import json
-import dns.resolver
-import subprocess
+import socket
 
 sites=['drive.google.com', 'mail.google.com', 'google.com']
 dict_out = {}
-
+conn = socket.socket()
 try:
     with open('saved_dict.txt') as file:
         dict_in = json.load(file)
@@ -136,18 +135,17 @@ except BaseException:
 
 for site in sites:
     try:
-        ret = dns.resolver.resolve(site, 'A')
+        ret = socket.gethostbyname(site)
     except BaseException:
         print(f'Невозможно определить IP адрес для домена {site}')
         ip_addr = 'None'
     else:
-        for a in ret:
-            ip_addr = a.to_text()
+        ip_addr = ret
         shell_cmd = f"ping -c 1 {ip_addr} 1>/dev/null"
-        if not subprocess.call(shell_cmd,shell=True):
+        if conn.connect_ex((ip_addr,80)):
             print(f'http://{site} - {ip_addr}')
         else:
-            print(f'http://{site} - {ip_addr} хост не доступен')
+            print(f'http://{site} - {ip_addr} сервис не доступен')
         dict_out[site] = ip_addr
     if dict_in.get(site,'None') != ip_addr:
         print(f'[ERROR] http://{site} IP mismatch: {dict_in.get(site)} {ip_addr}')
@@ -159,7 +157,7 @@ with open('saved_dict.txt', 'w') as file:
 ### Вывод скрипта при запуске при тестировании:
 ```
 alexgro@alex-book:~/Документы/netology$ ./script4.py 
-http://drive.google.com - 142.251.9.194
+http://drive.google.com - 173.194.220.194 сервис не доступен
 http://mail.google.com - 216.58.210.133
 http://google.com - 216.58.209.206
 ```
