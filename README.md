@@ -4,12 +4,26 @@
 
 Образ nginx успешно создан.
 
-alexgrolysva/nginx
+docker.io/alexgrolysva/nginx
 
 
 ## Задача 2
-
-
+- __Высоконагруженное монолитное java веб-приложение;__
+Для монолитного приложения более подойдёт запуск на виртуальной или физической машине, т.к. Docker подразумевает деление приложения на микросервисы. В монолитном приложении нет деления на микросервисы.
+- __Nodejs веб-приложение;__
+В данном случае подойдёт инфраструктура в виде Docker конткйнеров, т.к. возможно использование микросервисов.
+- __Мобильное приложение c версиями для Android и iOS;__
+Можно использовать микросервисы - Docker.
+- __Шина данных на базе Apache Kafka;__
+Виртуальные машины или физические сервера.
+- __Elasticsearch кластер для реализации логирования продуктивного веб-приложения - три ноды elasticsearch, два logstash и две ноды kibana;__
+Виртуальные машины.
+- __Мониторинг-стек на базе Prometheus и Grafana;__
+Можно использовать микросервисы - Docker.
+- __MongoDB, как основное хранилище данных для java-приложения;__
+Docker, в составе микросервисной архитекруры приложения.
+- __Gitlab сервер для реализации CI/CD процессов и приватный (закрытый) Docker Registry.__
+Можно использовать микросервисы - Docker.
 
 ## Задача 3
 ```shell
@@ -41,3 +55,15 @@ root@8e8cf32564c7:/#
 
 ## Задача 4  
 
+docker.io/alexgrolysva/ansible
+
+```shell
+vagrant@server1:~/ansible$ docker run -it alexgrolysva/ansible
+ansible-playbook 2.10.17
+  config file = None
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3.9/site-packages/ansible
+  executable location = /usr/bin/ansible-playbook
+  python version = 3.9.5 (default, Nov 24 2021, 21:19:13) [GCC 10.3.1 20210424]
+vagrant@server1:~/ansible$ 
+```
