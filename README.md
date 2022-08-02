@@ -1,31 +1,54 @@
-# Домашнее задание к занятию "6.6. Troubleshooting"
+# Домашнее задание к занятию "7.2. Облачные провайдеры и синтаксис Terraform."
 
 ## Задача 1
 
-Для прерывания запроса в MongoDB необходимо выполнить следующие действия:
-1. Определить opid с помошью запроса db.currentOp()
-2. С помощью db.killOp(<opid>) завершить зависший запрос.
-
-Для исключения ситуаций с зависшими запросами можно дополнить потенциально долгие запросы параметром maxTimeMS() с указанием максимального времени выполнения.
-
+С Yandex.Cloud знакомились на предыдущих домашках.
+Для аторизации я облаке прописал переменную   YC_SERVICE_ACCOUNT_KEY_FILE=/home/alexgro/key.json
 
 ## Задача 2
 
-Redis хранит данные в оперативной памяти. Из условий задачи видно, что количество записываемых пар ключ-значение больше чем истёкших. Следовательно, через какое-то время занятая память достигнет значения, указанного в параметре maxmemory. В таком случае Redis начнёт действовать согласно установленной политики вытеснения (в нашем случае "noeviction").
+1. Для сборки своего образа ami используется инструмент Packer.
+2. https://github.com/alexgro1982/devops-netology.git
 
-## Задача 3
+```shell
+alexgro@alex-book:~/Документы/netology/devops-netology/terraform$ terraform apply
 
-Так как таблицы в базе данных MySQL стали большими, то скорее всего разрыв соединения проимходит по таймауту.
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
 
-1. Можно попробовать изменить параметры сервера net_read_timeout или connect_timeout.
-2. Необходимо разделить большие таблицы на разные сервера (Горизонтальный шардинг)
+Terraform will perform the following actions:
 
-## Задача 4
+  # yandex_compute_image.ubuntu will be created
+  + resource "yandex_compute_image" "ubuntu" {
+      + created_at      = (known after apply)
+      + folder_id       = (known after apply)
+      + id              = (known after apply)
+      + min_disk_size   = (known after apply)
+      + name            = "ubuntu"
+      + os_type         = (known after apply)
+      + pooled          = (known after apply)
+      + product_ids     = (known after apply)
+      + size            = (known after apply)
+      + source_disk     = (known after apply)
+      + source_family   = "ubuntu-1804-lts"
+      + source_image    = (known after apply)
+      + source_snapshot = (known after apply)
+      + source_url      = (known after apply)
+      + status          = (known after apply)
+    }
 
-Сообщение "postmaster invoked oom-killer"  говорит о том, что процесс postmaster был убит компонентом ядра Out-of-Memory Killer. Таким образом ядро борется с недостатком памяти.  
-Причиной нехватки памяти может быть как сам PostgreSQL так и другое приложение, выполняющееся на этом же сервере.
+Plan: 1 to add, 0 to change, 0 to destroy.
 
-1. Необходимо проверить настройки использования памяти PostgreSQL в файле postgresql.conf
-2. Можно установить параметр ядра oom_score_adj в отрицательное значение, чтобы понизить шансы на завершение процесса postmaster.
- 
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+yandex_compute_image.ubuntu: Creating...
+yandex_compute_image.ubuntu: Creation complete after 7s [id=fd8fc9vg67agfh9q5qbu]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```
+
 
