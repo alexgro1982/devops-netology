@@ -33,7 +33,10 @@ locals {
   stage = 1
   prod = 2
  }
-
+ web_instance_for = {
+ stage = {"host1" = 1}
+ prod = {"host1" = 2, "host2" = 2}
+ }
 }
 
 resource "yandex_compute_image" "ubuntu" {
@@ -50,6 +53,28 @@ resource "yandex_compute_instance" "web" {
   resources {
     cores  = local.web_instance_cpu_count[terraform.workspace]
     memory = local.web_instance_memory_count[terraform.workspace]
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "ubuntu"
+    }
+  }
+  network_interface {
+    subnet_id = "${yandex_vpc_network.default.id}"
+  }
+}
+
+resource "yandex_compute_instance" "web_for" {
+  for_each = local.web_instance_for[terraform.workspace]
+  name        = each.key
+  platform_id = "standard-v1"
+  zone        = "ru-central1-a"
+
+
+  resources {
+    cores  = each.value
+    memory = each.value
   }
 
   boot_disk {
