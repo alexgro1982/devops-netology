@@ -1,70 +1,52 @@
-# Домашнее задание к занятию "7.5. Основы golang"
+# Домашнее задание к занятию "8.1. Введение в Ansible"
 
-## Задача 1
-
-Go успешно установлен.
-
-```shell
-root@server1:~/go# go version
-go version go1.19 linux/amd64
+1. Где расположен файл с some_fact из второго пункта задания?
 ```
-## Задача 3
-
-1. Программа переводит метры в футы
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Print("Enter length in meters: ")
-    var input float64
-    fmt.Scanf("%f", &input)
-
-    output := input / 0.3048
-
-    fmt.Println(output, " foots")    
-}
+group_vars/all/examp.yml
 ```
-
-2. Программа ищет наименьший элемент в массиве
-
-```go
-package main
-  
-import "fmt"
-
-func main() {
-    x := []int{48,96,86,68,57,82,63,70,37,34,83,27,19,97,9,17,}
-    var minval int = x[0]
-    var index int = 0
-    for i, value := range x {
-    	fmt.Print(value, " ")
-	    if value < minval {
-		    index = i
-		    minval = value
-	    }
-    }
-    fmt.Println("\nMin value: ", minval, " index: ", index)    
-}
+2. Какая команда нужна для запуска вашего playbook на окружении test.yml?
 ```
-3. Выводит числа от 1 до 100, которые делятся на 3 без остатка.
-
-```go
-package main
-
-import "fmt"
-
-func main() {
-    for i:=1;;i++ {
-	    if i*3 > 100 {
-		    fmt.Print("\n")
-		    break
-	    }
-	    fmt.Print(i*3, ", ")
-    }
-}
+ansible-playbook -i ./inventory/test.yml site.yml
 ```
-
-
+3. Какой командой можно зашифровать файл?
+```
+ansible-vault create <имя файла>
+```
+4. Какой командой можно расшифровать файл?
+```
+ansible-vault decrypt <имя файла>
+Необходимо ввести пароль
+```
+5. Можно ли посмотреть содержимое зашифрованного файла без команды расшифровки файла? Если можно, то как?
+```
+ansible-vault view <имя файла>
+Необходимо ввести пароль
+```
+6. Как выглядит команда запуска playbook, если переменные зашифрованы?
+```
+ansible-playbook -i ./inventory/prod.yml site.yml --ask-vault-pass
+```
+7. Как называется модуль подключения к host на windows?
+```
+winrm     Run tasks over Microsoft's WinRM
+```
+8. Приведите полный текст команды для поиска информации в документации ansible для модуля подключений ssh
+```
+ansible-doc -t connection ssh
+```
+9. Какой параметр из модуля подключения ssh необходим для того, чтобы определить пользователя, под которым необходимо совершать подключение?
+```
+remote_user
+        User name with which to login to the remote server, normally set by the remote_user keyword.
+        If no user is supplied, Ansible will let the ssh client binary choose the user as it normally
+        [Default: (null)]
+        set_via:
+          env:
+          - name: ANSIBLE_REMOTE_USER
+          ini:
+          - key: remote_user
+            section: defaults
+          vars:
+          - name: ansible_user
+          - name: ansible_ssh_user
+```

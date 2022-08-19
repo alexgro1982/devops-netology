@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+ ubuntu:
+  build: ubuntu/
+  container_name: ubuntu
+  tty: true
+ centos7:
+  build: centos7/
+  container_name: centos7
+  tty: true
