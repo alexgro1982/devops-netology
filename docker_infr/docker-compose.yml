@@ -9,3 +9,7 @@ services:
   build: centos7/
   container_name: centos7
   tty: true
+ fedora:
+  build: fedora/
+  container_name: fedora
+  tty: true
