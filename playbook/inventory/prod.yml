@@ -1,17 +1,8 @@
 ---
-  el:
-    hosts:
-      centos7:
-        ansible_connection: docker
-  deb:
-    hosts:
-      ubuntu:
-        ansible_connection: docker
-  fedora:
-    hosts:
-      fedora:
-        ansible_connection: docker
-  local:
-    hosts:
-      localhost:
-        ansible_connection: local
+elasticsearch:
+  hosts:
+    elastic1:
+      ansible_host: 192.168.88.98
+      ansible_connection: ssh
+      ansible_user: vagrant
+      ansible_password: vagrant
